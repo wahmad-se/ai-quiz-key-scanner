@@ -1,0 +1,3 @@
+Student Registration ID,Quiz Variant,Part 1 Score,Part 2 Score,Total Score,Percentage (%)
+BSE-FA24-047,Variant 1,       8/8,              7/8,         15/16,            93.75%
+FA24-BSE-016,Variant 2,       7/8,              7/8,         14/16,            87.50%

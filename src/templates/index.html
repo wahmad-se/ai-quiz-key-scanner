@@ -3,208 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Quiz Scanner & Grading System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Automated Intelligent Quiz Scanner</title>
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; }
-        .main-card { background: white; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.06); border: none; }
-        .student-badge { background: #eef2f7; color: #333; border-left: 4px solid #0d6efd; padding: 10px 14px; font-weight: 600; font-size: 0.95rem; border-radius: 0 8px 8px 0; }
-        #video-preview { width: 100%; max-width: 500px; border-radius: 12px; border: 3px solid #dee2e6; transform: scaleX(-1); background: #222; }
-        .breakdown-table th { background-color: #f8f9fa; text-align: center; }
-        .breakdown-table td { text-align: center; vertical-align: middle; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 560px;
+            background: #1e293b;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            text-align: center;
+        }
+        .header-panel {
+            background-color: #0f172a;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border-left: 4px solid #38bdf8;
+            text-align: left;
+        }
+        .panel-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .founder-row {
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: #e2e8f0;
+        }
+        .founder-row:last-child {
+            margin-bottom: 0;
+        }
+        .founder-name {
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        .founder-reg {
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 14px;
+            background: #1e293b;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+        h2 {
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            color: #fff;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 4/3;
+            border: 2px solid #334155;
+        }
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .scanner-laser {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #38bdf8, transparent);
+            animation: scanning 2s linear infinite;
+        }
+        @keyframes scanning {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+        .status-container {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #38bdf8;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+        .camera-select-container {
+            margin-top: 15px;
+            text-align: left;
+        }
+        .camera-select-container label {
+            font-size: 12px;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 4px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #0f172a;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            font-size: 14px;
+            outline: none;
+        }
+        #results {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 10px;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            text-align: left;
+            display: none;
+        }
+        .result-item {
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            letter-spacing: 0.05em;
+        }
+        .value {
+            font-size: 15px;
+            font-weight: 600;
+            word-wrap: break-word;
+        }
+        #detected-question {
+            color: #38bdf8;
+        }
+        
+        /* Metric Score Bar Layout */
+        .score-bar {
+            background: #1e293b;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            border: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+        }
+        .score-val {
+            color: #38bdf8;
+            font-weight: bold;
+        }
+
+        /* Two-Column Layout Grid for Splits */
+        .split-results {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 8px;
+        }
+        .column-box {
+            flex: 1;
+            background-color: rgba(56, 189, 248, 0.02);
+            border: 1px solid rgba(56, 189, 248, 0.12);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .column-box.part-two {
+            background-color: rgba(74, 222, 128, 0.02);
+            border: 1px solid rgba(74, 222, 128, 0.12);
+        }
+        .column-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .part-one .column-title { color: #38bdf8; }
+        .part-two .column-title { color: #4ade80; }
+        
+        /* Explicit Row Evaluations styling */
+        .eval-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 4px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.05);
+            font-family: monospace;
+        }
+        .eval-row:last-child { border-bottom: none; }
+        .row-status-ok { color: #4ade80; font-weight: bold; }
+        .row-status-wrong { color: #ef4444; font-weight: bold; }
     </style>
 </head>
 <body>
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-7">
-            
-            <div class="card main-card p-4 mb-4">
-                <div class="text-center border-bottom pb-3 mb-3">
-                    <h3 class="fw-bold text-dark mb-1"><i class="fa-solid fa-robot text-primary me-2"></i>AI Quiz Scanner & Grading System</h3>
-                    <span class="badge bg-dark px-3 py-2">Course: Artificial Intelligence (BSE-4A)</span>
-                </div>
-                
-                <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-graduation-cap me-2"></i>Founders:</h6>
-                <div class="d-flex flex-column gap-2">
-                    <div class="student-badge"><i class="fa-solid fa-user-astronaut text-primary me-2"></i>Waleed Ahmad <span class="text-muted float-end">FA24-BSE-094</span></div>
-                    <div class="student-badge"><i class="fa-solid fa-user text-primary me-2"></i>Taqi Haider <span class="text-muted float-end">FA24-BSE-063</span></div>
-                    <div class="student-badge"><i class="fa-solid fa-user text-primary me-2"></i>Dawood Mumtaz <span class="text-muted float-end">FA24-BSE-131</span></div>
-                </div>
-            </div>
 
-            <div class="card main-card p-4 mb-4" id="scanner-interface">
-                <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-camera-retro me-2"></i>Scanning Input Interface</h5>
-                
-                <div class="mb-3">
-                    <label for="lens-dropdown" class="form-label small fw-bold text-muted">Select Active Video Feed Input Source:</label>
-                    <select id="lens-dropdown" class="form-select fw-semibold text-dark"></select>
+<div class="container">
+    <div class="header-panel">
+        <div class="panel-title">Founders</div>
+        {% for founder in founders %}
+        <div class="founder-row">
+            <span class="founder-name">{{ founder.name }}</span>
+            <span class="founder-reg">({{ founder.reg }})</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2>Hands-Free Live Scanner</h2>
+    <div class="subtitle">Position a quiz question or sheet inside the frame to execute auto-grading.</div>
+    
+    <div class="video-wrapper">
+        <video id="video" autoplay playsinline></video>
+        <div class="scanner-laser"></div>
+    </div>
+
+    <div class="status-container">
+        <div class="pulse-dot"></div>
+        <span id="status-text">Scanning environment automatically...</span>
+    </div>
+
+    <div class="camera-select-container">
+        <label for="videoSource">Active Camera Device:</label>
+        <select id="videoSource"></select>
+    </div>
+    
+    <canvas id="canvas" style="display:none;"></canvas>
+    
+    <div id="results">
+        <div class="result-item">
+            <span class="label">Identified Target Header Context</span>
+            <span id="detected-question" class="value"></span>
+        </div>
+        <div class="result-item">
+            <span class="label">Explicit Multi-Question Evaluation Analytics</span>
+            <div id="dynamic-display-wrapper">
                 </div>
-
-                <div class="text-center position-relative mb-4">
-                    <video id="video-preview" autoplay playsinline></video>
-                    <canvas id="capture-canvas" style="display:none;"></canvas>
-                </div>
-
-                <div class="d-grid gap-2">
-                    <button id="snap-btn" class="btn btn-primary py-2.5 fw-bold shadow-sm"><i class="fa-solid fa-qrcode me-2"></i>Scan Sheet Frame</button>
-                    <a href="/api/download-report" class="btn btn-success py-2 fw-bold"><i class="fa-solid fa-file-excel mercantile me-2"></i>Download Consolidated Excel Report</a>
-                </div>
-            </div>
-
-            <div id="grading-dashboard" style="display: none;" class="card main-card p-4">
-                <div class="alert alert-primary text-center d-flex justify-content-around align-items-center mb-4">
-                    <div><small class="d-block text-uppercase text-muted fw-bold">Student</small><span id="res-name" class="fw-bold fs-5"></span></div>
-                    <div><small class="d-block text-uppercase text-muted fw-bold">Registration</small><span id="res-reg" class="fw-bold fs-5"></span></div>
-                    <div><small class="d-block text-uppercase text-muted fw-bold">Set</small><span id="res-set" class="fw-bold fs-5 text-warning"></span></div>
-                </div>
-
-                <div class="row text-center mb-4 g-2">
-                    <div class="col-4"><div class="p-3 bg-light border rounded"><h3><span id="res-score" class="text-success fw-bold"></span></h3><small class="text-muted fw-bold">Score</small></div></div>
-                    <div class="col-4"><div class="p-3 bg-light border rounded"><h3><span id="res-pct" class="text-primary fw-bold"></span></h3><small class="text-muted fw-bold">Percentage</small></div></div>
-                    <div class="col-4"><div class="p-3 bg-light border rounded"><h3><span id="res-grade" class="text-danger fw-bold"></span></h3><small class="text-muted fw-bold">Grade</small></div></div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="fw-bold text-primary text-center border-bottom pb-2">Part-I Analysis Breakdown</h6>
-                        <table class="table table-bordered table-sm breakdown-table"><thead class="table-light"><tr><th>Q</th><th>Ans</th><th>Key</th><th>Stat</th></tr></thead><tbody id="p1-rows"></tbody></table>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="fw-bold text-success text-center border-bottom pb-2">Part-II Analysis Breakdown</h6>
-                        <table class="table table-bordered table-sm breakdown-table"><thead class="table-light"><tr><th>Q</th><th>Ans</th><th>Key</th><th>Stat</th></tr></thead><tbody id="p2-rows"></tbody></table>
-                    </div>
-                </div>
-
-                <button onclick="resetAppScanner()" class="btn btn-secondary w-100 fw-bold mt-3 py-2"><i class="fa-solid fa-rotate-left me-2"></i>Reset & Capture Next Page</button>
-            </div>
-
         </div>
     </div>
 </div>
 
 <script>
-    const video = document.getElementById('video-preview');
-    const canvas = document.getElementById('capture-canvas');
-    const lensDropdown = document.getElementById('lens-dropdown');
-    const snapBtn = document.getElementById('snap-btn');
+    const video = document.getElementById('video');
+    const videoSelect = document.getElementById('videoSource');
+    const canvas = document.getElementById('canvas');
+    const resultsDiv = document.getElementById('results');
+    const questionSpan = document.getElementById('detected-question');
+    const displayWrapper = document.getElementById('dynamic-display-wrapper');
+    const statusText = document.getElementById('status-text');
+
     let currentStream = null;
+    let processingFrame = false;
 
-    // 1. Force immediate permission request to unlock hardware labels
-    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
-    .then(stream => {
-        currentStream = stream;
-        video.srcObject = stream;
-        return navigator.mediaDevices.enumerateDevices();
-    })
-    .then(devices => {
-        const videoDevices = devices.filter(d => d.kind === 'videoinput');
-        lensDropdown.innerHTML = '';
-        
-        if (videoDevices.length === 0) {
-            const opt = document.createElement('option');
-            opt.innerText = "No cameras detected";
-            lensDropdown.appendChild(opt);
-            return;
-        }
-
-        videoDevices.forEach((device, index) => {
-            const opt = document.createElement('option');
-            opt.value = device.deviceId;
-            opt.innerText = device.label || `Camera ${index + 1}`;
-            lensDropdown.appendChild(opt);
-        });
-    })
-    .catch(err => {
-        console.error("Camera access denied or unavailable:", err);
-        lensDropdown.innerHTML = '<option>Permission Denied / No Camera</option>';
-    });
-
-    // 2. Handle switching cameras via dropdown
-    lensDropdown.addEventListener('change', () => {
-        if (lensDropdown.value) {
-            startStream(lensDropdown.value);
-        }
-    });
-
-    function startStream(id) {
+    function stopMediaTracks() {
         if (currentStream) {
-            currentStream.getTracks().forEach(t => t.stop());
+            currentStream.getTracks().forEach(track => track.stop());
         }
-        navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: id } } })
-        .then(stream => {
-            currentStream = stream;
-            video.srcObject = stream;
-        })
-        .catch(err => {
-            // Fallback to default if exact ID binding fails
-            navigator.mediaDevices.getUserMedia({ video: true })
+    }
+
+    function getDevices() {
+        return navigator.mediaDevices.enumerateDevices();
+    }
+
+    function gotDevices(deviceInfos) {
+        const currentSelection = videoSelect.value;
+        videoSelect.innerHTML = '';
+        for (const deviceInfo of deviceInfos) {
+            if (deviceInfo.kind === 'videoinput') {
+                const option = document.createElement('option');
+                option.value = deviceInfo.deviceId;
+                option.text = deviceInfo.label || `Camera ${videoSelect.length + 1}`;
+                videoSelect.appendChild(option);
+            }
+        }
+        if (Array.from(videoSelect.options).some(o => o.value === currentSelection)) {
+            videoSelect.value = currentSelection;
+        }
+    }
+
+    function startVideo() {
+        stopMediaTracks();
+        const videoSource = videoSelect.value;
+        const constraints = {
+            video: videoSource ? { deviceId: { exact: videoSource } } : { facingMode: 'environment' }
+        };
+        
+        navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => {
                 currentStream = stream;
                 video.srcObject = stream;
+                return getDevices();
+            })
+            .then(gotDevices)
+            .catch(err => {
+                console.error("Camera provisioning block failure: ", err);
             });
-        });
     }
 
-    // 3. Capture frame and POST to Flask backend
-    snapBtn.addEventListener('click', () => {
-        snapBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin me-2'></i>Extracting Sheet Data...";
-        snapBtn.disabled = true;
+    videoSelect.onchange = startVideo;
+    startVideo();
+
+    // HANDS-FREE RUNTIME INTERVAL INTERCEPT LOOP
+    setInterval(() => {
+        if (processingFrame || !video.videoWidth) return;
+
+        processingFrame = true;
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        canvas.toBlob(blob => {
+        canvas.toBlob((blob) => {
             const formData = new FormData();
-            formData.append('file', blob, 'scan.png');
+            formData.append('file', blob, 'autoscan.jpg');
             
-            fetch('/api/process-scan', { method: 'POST', body: formData })
-            .then(res => res.json())
+            fetch('/scan', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
             .then(data => {
-                if(data.success) displayGradedDashboard(data);
-                else { alert("Error parsing frame details: " + data.error); resetAppScanner(); }
-            }).catch(() => { alert("Local server link failure."); resetAppScanner(); });
-        }, 'image/png');
-    });
+                processingFrame = false;
+                if (data.error) return;
+                
+                questionSpan.innerText = data.question;
+                
+                if (data.layout === "split") {
+                    // Build Itemized Multi-Question HTML Rows dynamically for Part 1
+                    let part1Html = '';
+                    data.part1_rows.forEach(row => {
+                        let statusClass = row.status === "✔" ? "row-status-ok" : "row-status-wrong";
+                        part1Html += `
+                            <div class="eval-row">
+                                <span>${row.q}: Marked [${row.marked}]</span>
+                                <span class="${statusClass}">${row.status} (Key: ${row.key})</span>
+                            </div>`;
+                    });
 
-    function displayGradedDashboard(data) {
-        document.getElementById('scanner-interface').style.display = 'none';
-        document.getElementById('grading-dashboard').style.display = 'block';
-        
-        document.getElementById('res-name').innerText = data.name;
-        document.getElementById('res-reg').innerText = data.reg_no;
-        document.getElementById('res-set').innerText = data.quiz_set;
-        document.getElementById('res-score').innerText = data.score;
-        document.getElementById('res-pct').innerText = data.percentage;
-        document.getElementById('res-grade').innerText = data.grade;
-        
-        buildRows('p1-rows', data.part1_breakdown, 'text-primary');
-        buildRows('p2-rows', data.part2_breakdown, 'text-success');
-    }
+                    // Build Itemized Multi-Question HTML Rows dynamically for Part 2
+                    let part2Html = '';
+                    data.part2_rows.forEach(row => {
+                        let statusClass = row.status === "✔" ? "row-status-ok" : "row-status-wrong";
+                        part2Html += `
+                            <div class="eval-row">
+                                <span>${row.q}: Marked [${row.marked}]</span>
+                                <span class="${statusClass}">${row.status} (Key: ${row.key})</span>
+                            </div>`;
+                    });
 
-    function buildRows(targetId, dataArr, badgeColor) {
-        const t = document.getElementById(targetId); t.innerHTML = '';
-        dataArr.forEach(item => {
-            let badge = item.status === '✓' ? 'bg-success' : (item.status === '✗' ? 'bg-danger' : 'bg-secondary');
-            t.innerHTML += `<tr>
-                <td><strong>${item.q}</strong></td>
-                <td><span class="badge ${badgeColor}">${item.student !== 'None' && item.student !== 'null' ? item.student : '-'}</span></td>
-                <td><strong>${item.correct}</strong></td>
-                <td><span class="badge ${badge}">${item.status}</span></td>
-            </tr>`;
-        });
-    }
-
-    function resetAppScanner() {
-        document.getElementById('grading-dashboard').style.display = 'none';
-        document.getElementById('scanner-interface').style.display = 'block';
-        snapBtn.innerHTML = "<i class='fa-solid fa-qrcode me-2'></i>Scan Sheet Frame";
-        snapBtn.disabled = false;
-        startStream(lensDropdown.value);
-    }
+                    // Render Side-by-Side Content with Live Grading Aggregates
+                    displayWrapper.innerHTML = `
+                        <div class="score-bar">
+                            <span>Student ID: <b style="color:#fff;">${data.student_id}</b></span>
+                            <span>Score: <span class="score-val">${data.score_summary}</span></span>
+                        </div>
+                        <div class="split-results">
+                            <div class="column-box part-one">
+                                <div class="column-title">Answers Part-I</div>
+                                ${part1Html}
+                            </div>
+                            <div class="column-box part-two">
+                                <div class="column-title">Answers Part-II</div>
+                                ${part2Html}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Display fallback layout for standard single-question QR codes
+                    displayWrapper.innerHTML = `
+                        <div style="color: #4ade80; background-color: rgba(74, 222, 128, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(74, 222, 128, 0.2); font-weight: 600;">
+                            ${data.correct_option}
+                        </div>
+                    `;
+                }
+                
+                resultsDiv.style.display = 'block';
+            })
+            .catch(err => {
+                processingFrame = false;
+            });
+        }, 'image/jpeg');
+    }, 1500); 
 </script>
+
 </body>
 </html>
