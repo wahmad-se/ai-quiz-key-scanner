@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quiz Scanner & Grading System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .main-card { background: white; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.06); border: none; }
+        .student-badge { background: #eef2f7; color: #333; border-left: 4px solid #0d6efd; padding: 10px 14px; font-weight: 600; font-size: 0.95rem; border-radius: 0 8px 8px 0; }
+        #video-preview { width: 100%; max-width: 500px; border-radius: 12px; border: 3px solid #dee2e6; transform: scaleX(-1); background: #222; }
+        .breakdown-table th { background-color: #f8f9fa; text-align: center; }
+        .breakdown-table td { text-align: center; vertical-align: middle; }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            
+            <div class="card main-card p-4 mb-4">
+                <div class="text-center border-bottom pb-3 mb-3">
+                    <h3 class="fw-bold text-dark mb-1"><i class="fa-solid fa-robot text-primary me-2"></i>AI Quiz Scanner & Grading System</h3>
+                    <span class="badge bg-dark px-3 py-2">Course: Artificial Intelligence (BSE-4A)</span>
+                </div>
+                
+                <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-graduation-cap me-2"></i>Founders:</h6>
+                <div class="d-flex flex-column gap-2">
+                    <div class="student-badge"><i class="fa-solid fa-user-astronaut text-primary me-2"></i>Waleed Ahmad <span class="text-muted float-end">FA24-BSE-094</span></div>
+                    <div class="student-badge"><i class="fa-solid fa-user text-primary me-2"></i>Taqi Haider <span class="text-muted float-end">FA24-BSE-063</span></div>
+                    <div class="student-badge"><i class="fa-solid fa-user text-primary me-2"></i>Dawood Mumtaz <span class="text-muted float-end">FA24-BSE-131</span></div>
+                </div>
+            </div>
+
+            <div class="card main-card p-4 mb-4" id="scanner-interface">
+                <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-camera-retro me-2"></i>Scanning Input Interface</h5>
+                
+                <div class="mb-3">
+                    <label for="lens-dropdown" class="form-label small fw-bold text-muted">Select Active Video Feed Input Source:</label>
+                    <select id="lens-dropdown" class="form-select fw-semibold text-dark"></select>
+                </div>
+
+                <div class="text-center position-relative mb-4">
+                    <video id="video-preview" autoplay playsinline></video>
+                    <canvas id="capture-canvas" style="display:none;"></canvas>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button id="snap-btn" class="btn btn-primary py-2.5 fw-bold shadow-sm"><i class="fa-solid fa-qrcode me-2"></i>Scan Sheet Frame</button>
+                    <a href="/api/download-report" class="btn btn-success py-2 fw-bold"><i class="fa-solid fa-file-excel mercantile me-2"></i>Download Consolidated Excel Report</a>
+                </div>
+            </div>
+
+            <div id="grading-dashboard" style="display: none;" class="card main-card p-4">
+                <div class="alert alert-primary text-center d-flex justify-content-around align-items-center mb-4">
+                    <div><small class="d-block text-uppercase text-muted fw-bold">Student</small><span id="res-name" class="fw-bold fs-5"></span></div>
+                    <div><small class="d-block text-uppercase text-muted fw-bold">Registration</small><span id="res-reg" class="fw-bold fs-5"></span></div>
+                    <div><small class="d-block text-uppercase text-muted fw-bold">Set</small><span id="res-set" class="fw-bold fs-5 text-warning"></span></div>
+                </div>
+
+                <div class="row text-center mb-4 g-2">
+                    <div class="col-4"><div class="p-3 bg-light border rounded"><h3><span id="res-score" class="text-success fw-bold"></span></h3><small class="text-muted fw-bold">Score</small></div></div>
+                    <div class="col-4"><div class="p-3 bg-light border rounded"><h3><span id="res-pct" class="text-primary fw-bold"></span></h3><small class="text-muted fw-bold">Percentage</small></div></div>
+                    <div class="col-4"><div class="p-3 bg-light border rounded"><h3><span id="res-grade" class="text-danger fw-bold"></span></h3><small class="text-muted fw-bold">Grade</small></div></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary text-center border-bottom pb-2">Part-I Analysis Breakdown</h6>
+                        <table class="table table-bordered table-sm breakdown-table"><thead class="table-light"><tr><th>Q</th><th>Ans</th><th>Key</th><th>Stat</th></tr></thead><tbody id="p1-rows"></tbody></table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-success text-center border-bottom pb-2">Part-II Analysis Breakdown</h6>
+                        <table class="table table-bordered table-sm breakdown-table"><thead class="table-light"><tr><th>Q</th><th>Ans</th><th>Key</th><th>Stat</th></tr></thead><tbody id="p2-rows"></tbody></table>
+                    </div>
+                </div>
+
+                <button onclick="resetAppScanner()" class="btn btn-secondary w-100 fw-bold mt-3 py-2"><i class="fa-solid fa-rotate-left me-2"></i>Reset & Capture Next Page</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const video = document.getElementById('video-preview');
+    const canvas = document.getElementById('capture-canvas');
+    const lensDropdown = document.getElementById('lens-dropdown');
+    const snapBtn = document.getElementById('snap-btn');
+    let currentStream = null;
+
+    // 1. Force immediate permission request to unlock hardware labels
+    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+    .then(stream => {
+        currentStream = stream;
+        video.srcObject = stream;
+        return navigator.mediaDevices.enumerateDevices();
+    })
+    .then(devices => {
+        const videoDevices = devices.filter(d => d.kind === 'videoinput');
+        lensDropdown.innerHTML = '';
+        
+        if (videoDevices.length === 0) {
+            const opt = document.createElement('option');
+            opt.innerText = "No cameras detected";
+            lensDropdown.appendChild(opt);
+            return;
+        }
+
+        videoDevices.forEach((device, index) => {
+            const opt = document.createElement('option');
+            opt.value = device.deviceId;
+            opt.innerText = device.label || `Camera ${index + 1}`;
+            lensDropdown.appendChild(opt);
+        });
+    })
+    .catch(err => {
+        console.error("Camera access denied or unavailable:", err);
+        lensDropdown.innerHTML = '<option>Permission Denied / No Camera</option>';
+    });
+
+    // 2. Handle switching cameras via dropdown
+    lensDropdown.addEventListener('change', () => {
+        if (lensDropdown.value) {
+            startStream(lensDropdown.value);
+        }
+    });
+
+    function startStream(id) {
+        if (currentStream) {
+            currentStream.getTracks().forEach(t => t.stop());
+        }
+        navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: id } } })
+        .then(stream => {
+            currentStream = stream;
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            // Fallback to default if exact ID binding fails
+            navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                currentStream = stream;
+                video.srcObject = stream;
+            });
+        });
+    }
+
+    // 3. Capture frame and POST to Flask backend
+    snapBtn.addEventListener('click', () => {
+        snapBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin me-2'></i>Extracting Sheet Data...";
+        snapBtn.disabled = true;
+        
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        canvas.toBlob(blob => {
+            const formData = new FormData();
+            formData.append('file', blob, 'scan.png');
+            
+            fetch('/api/process-scan', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) displayGradedDashboard(data);
+                else { alert("Error parsing frame details: " + data.error); resetAppScanner(); }
+            }).catch(() => { alert("Local server link failure."); resetAppScanner(); });
+        }, 'image/png');
+    });
+
+    function displayGradedDashboard(data) {
+        document.getElementById('scanner-interface').style.display = 'none';
+        document.getElementById('grading-dashboard').style.display = 'block';
+        
+        document.getElementById('res-name').innerText = data.name;
+        document.getElementById('res-reg').innerText = data.reg_no;
+        document.getElementById('res-set').innerText = data.quiz_set;
+        document.getElementById('res-score').innerText = data.score;
+        document.getElementById('res-pct').innerText = data.percentage;
+        document.getElementById('res-grade').innerText = data.grade;
+        
+        buildRows('p1-rows', data.part1_breakdown, 'text-primary');
+        buildRows('p2-rows', data.part2_breakdown, 'text-success');
+    }
+
+    function buildRows(targetId, dataArr, badgeColor) {
+        const t = document.getElementById(targetId); t.innerHTML = '';
+        dataArr.forEach(item => {
+            let badge = item.status === '✓' ? 'bg-success' : (item.status === '✗' ? 'bg-danger' : 'bg-secondary');
+            t.innerHTML += `<tr>
+                <td><strong>${item.q}</strong></td>
+                <td><span class="badge ${badgeColor}">${item.student !== 'None' && item.student !== 'null' ? item.student : '-'}</span></td>
+                <td><strong>${item.correct}</strong></td>
+                <td><span class="badge ${badge}">${item.status}</span></td>
+            </tr>`;
+        });
+    }
+
+    function resetAppScanner() {
+        document.getElementById('grading-dashboard').style.display = 'none';
+        document.getElementById('scanner-interface').style.display = 'block';
+        snapBtn.innerHTML = "<i class='fa-solid fa-qrcode me-2'></i>Scan Sheet Frame";
+        snapBtn.disabled = false;
+        startStream(lensDropdown.value);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+flask
+opencv-python-headless
+numpy
+pandas
+openpyxl
+easyocr
+gunicorn
